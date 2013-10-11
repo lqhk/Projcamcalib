@@ -4,8 +4,9 @@ origimgs=cell([1,4]);
 imgwidth=size(origimgs{1},2);
 imgheight=size(origimgs{1},1);
 for i=1:size(origimgs,2)
-    if imgwidth ~= size(origimgs{i},2) && imgheight ~= size(origimgs{i},1)
-        exit;
+    if imgwidth ~= size(origimgs{i},2) || imgheight ~= size(origimgs{i},1)
+        disp('The width or the height of images are not equal!');
+        return;
     end
 end
 
@@ -28,3 +29,26 @@ rawbkgbrt=(brtimgs{1}+brtimgs{2}+brtimgs{3}+brtimgs{4})./4;
 rawgain=2.*realsqrt(realpow(phasediff24,2)+realpow(phasediff31,2))./(brtimgs{1}+brtimgs{2}+brtimgs{3}+brtimgs{4});
 rawphase=atan((brtimgs{2}-brtimgs{4})./(brtimgs{3}-brtimgs{1}));
 clear phasediff24 phasediff31;
+
+%% Estimate
+disp('Loading mask image');
+maskimg=uiLoadImage();
+if imgwidth ~= size(maskimg,2) || imgheight ~= size(maskimg,1)
+    disp('The width or the height of mask is not equal those of images!');
+    return;
+end
+if size(maskimg,3)~=1
+    disp('Mask is a multi-channel image, use only the first channel.');
+    maskimg = maskimg(:,:,1);
+end
+
+%% Prepare array
+maskarray=reshape(maskimg,numel(maskimg),1);
+initpara=[reshape(rawgain,imgwidth*imgheight,1);reshape(rawphase,imgwidth*imgheight,1);reshape(rawbkgbrt,imgwidth*imgheight,1);1;1];
+brtimgsarray = cell([1,4]);
+for imgcount=1:4
+    brtimgsarray{imgcount}=reshape(brtimgs{imgcount},imgwidth*imgheight,1);
+end
+fn=@(p)itrIlluminationCost(p,maskarray,brtimgsarray);
+options=optimset('Display','iter','MaxIter',5000,'TolX',1e+2);
+%[initpara,fval]=fminunc(fn,initpara,options);
