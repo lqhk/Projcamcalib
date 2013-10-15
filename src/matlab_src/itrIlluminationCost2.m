@@ -24,7 +24,7 @@ for imgi=1:length(estI)
     sumI{imgi}=brtimgsarray{imgi}-estI{imgi};
 end
 for imgi=1:length(estI)
-    for pixi=1:imgsize;
+    for pixi=1:imgsize
         if isnan(sumI{imgi}(pixi))
             sumI{imgi}(pixi)=0;
         end

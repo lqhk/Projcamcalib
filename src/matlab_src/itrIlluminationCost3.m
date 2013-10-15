@@ -1,0 +1,1 @@
+function f=itrIlluminationCost3(para,brtimgsarray)

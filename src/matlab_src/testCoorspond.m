@@ -1,6 +1,7 @@
 %%  Read original images
 origimgs=cell([1,4]);
-[origimgs{1},origimgs{2},origimgs{3},origimgs{4}]=load4images();
+%[origimgs{1},origimgs{2},origimgs{3},origimgs{4}]=load4images();
+[origimgs{1},origimgs{2},origimgs{3},origimgs{4}]=load4images('images0019.bmp','images0020.bmp','images0021.bmp','images0018.bmp');
 imgwidth=size(origimgs{1},2);
 imgheight=size(origimgs{1},1);
 for i=1:size(origimgs,2)
@@ -44,11 +45,15 @@ end
 
 %% Prepare array
 maskarray=reshape(maskimg,numel(maskimg),1);
-initpara=[reshape(rawgain,imgwidth*imgheight,1);reshape(rawphase,imgwidth*imgheight,1);reshape(rawbkgbrt,imgwidth*imgheight,1);1;1];
+%initpara=[reshape(rawgain,imgwidth*imgheight,1);reshape(rawphase,imgwidth*imgheight,1);reshape(rawbkgbrt,imgwidth*imgheight,1);1;1];
+rawgainarray=reshape(rawgain,imgwidth*imgheight,1);
+rawphasearray=reshape(rawphase,imgwidth*imgheight,1);
+rawbkgbrtarray=reshape(rawbkgbrt,imgwidth*imgheight,1);
 brtimgsarray = cell([1,4]);
 for imgcount=1:4
     brtimgsarray{imgcount}=reshape(brtimgs{imgcount},imgwidth*imgheight,1);
 end
+[initpara,initmaskarray,validPixel]=prepareParaArray(rawgainarray,rawphasearray,rawbkgbrtarray,maskarray,brtimgsarray);
 fn=@(p)itrIlluminationCost(p,maskarray,brtimgsarray);
-options=optimset('Display','iter','MaxIter',5000,'TolX',1e+2);
-%[initpara,fval]=fminunc(fn,initpara,options);
+options=optimset('Display','iter','MaxIter',2);
+%[para,fval]=fminunc(fn,initpara,options);
