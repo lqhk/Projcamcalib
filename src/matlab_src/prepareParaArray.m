@@ -1,9 +1,10 @@
-function [outParaArray,outMaskArray,outValidCount] = prepareParaArray(inGainArray,inPhaseArray,inBkgBrtArray,inMaskArray,inBrtImgsArray)
+function [outParaArray,outMaskArray,outValidCount,outBrtArray] = prepareParaArray(inGainArray,inPhaseArray,inBkgBrtArray,inMaskArray,inBrtImgsArray)
 estI=cell([1,4]);
 imgsize=length(inMaskArray);
 sumI=cell([1,4]);
 outMaskArray=ones(imgsize,1);
 outValidCount=imgsize;
+outBrtArray=cell([1,4]);
 for pixi=1:imgsize
     if inMaskArray(pixi)<1
         outMaskArray(pixi)=0;
@@ -26,12 +27,18 @@ for imgi=1:length(estI)
     end
 end
 outParaArray=zeros(3*outValidCount+2,1);
+for imig=1:length(estI)
+    outBrtArray{imgi}=zeros(outValidCount,1);
+end
 vpixi=1;
 for pixi=1:imgsize
     if isequal(outMaskArray(pixi),1)
         outParaArray(vpixi)=inGainArray(pixi);
         outParaArray(outValidCount+vpixi)=inPhaseArray(pixi);
         outParaArray(2*outValidCount+vpixi)=inBkgBrtArray(pixi);
+        for imig=1:length(estI)
+            outBrtArray{imgi}(vpixi)=inBkgBrtArray{imgi}(pixi);
+        end
         vpixi=vpixi+1;
     end
 end
